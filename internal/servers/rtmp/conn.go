@@ -232,11 +232,26 @@ func (c *conn) runRead() error {
 	c.reader = r
 	c.mutex.Unlock()
 
+	readErr := make(chan error, 1)
+	go func() {
+		for {
+			_, err := c.rconn.Read()
+			if err != nil {
+				readErr <- err
+				return
+			}
+		}
+	}()
+
 	select {
 	case <-c.ctx.Done():
 		return fmt.Errorf("terminated")
 
 	case err = <-r.Error():
+		return err
+	}
+
+	case err = <-readErr:
 		return err
 	}
 }
