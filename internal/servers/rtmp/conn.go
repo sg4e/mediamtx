@@ -249,7 +249,6 @@ func (c *conn) runRead() error {
 
 	case err = <-r.Error():
 		return err
-	}
 
 	case err = <-readErr:
 		return err
